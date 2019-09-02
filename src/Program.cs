@@ -58,7 +58,7 @@ namespace openrmf_msg_controls
                     logger.Info("New NATS data: {0}",Encoding.UTF8.GetString(natsargs.Message.Data));
                     var listing = _context.ControlSets.ToList();
                     var result = new List<ControlSet>(); // put all results in here
-                    Filter filter = JsonConvert.DeserializeObject<Filter>(Compression.DecompressString(Encoding.UTF8.GetString(natsargs.Message.Data)));
+                    Filter filter = JsonConvert.DeserializeObject<Filter>(Encoding.UTF8.GetString(natsargs.Message.Data));
                     if (listing != null) {
                         // figure out the impact level filter
                         if (filter.impactLevel.Trim().ToLower() == "low")
