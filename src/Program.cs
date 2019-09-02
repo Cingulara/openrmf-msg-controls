@@ -9,12 +9,12 @@ using openrmf_msg_controls.Classes;
 using openrmf_msg_controls.Database;
 using Newtonsoft.Json;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace openrmf_msg_controls
 {
     class Program
     {
-        private static ControlsDBContext _context;
 
         private static int GetFirstIndex(string term) {
             int space = term.IndexOf(" ");
@@ -31,59 +31,23 @@ namespace openrmf_msg_controls
                 return period;
         }
 
-        private void LoadControlsXML(ControlsDBContext context) {
-            List<Control> controls = Classes.ControlsLoader.LoadControls();
-            // for each one, load into the in-memory DB
-            ControlSet cs;
-            string formatNumber;
-            foreach (Control c in controls) {
-                cs = new ControlSet(); // the flattened controls table listing for the in memory DB
-                cs.family = c.family;
-                cs.highimpact = c.highimpact;
-                cs.moderateimpact = c.moderateimpact;
-                cs.lowimpact = c.lowimpact;
-                cs.number = c.number;
-                cs.priority = c.priority;
-                cs.title = c.title;
-                if (!string.IsNullOrEmpty(c.supplementalGuidance))
-                    cs.supplementalGuidance = c.supplementalGuidance.Replace("\\r","").Replace("\\n","");
-                if (c.childControls.Count > 0)
-                {
-                    foreach (ChildControl cc in c.childControls) {
-                        cs.id = Guid.NewGuid(); // need a new PK ID for each record saved
-                        if (!string.IsNullOrEmpty(cc.description))
-                            cs.subControlDescription = cc.description.Replace("\r","").Replace("\n","");
-                        formatNumber = cc.number.Replace(" ", ""); // remove periods and empty space for searching later
-                        if (formatNumber.EndsWith(".")) 
-                            formatNumber = formatNumber.Substring(0,formatNumber.Length-1); // take off the trailing period
-                        cs.subControlNumber = formatNumber; 
-                        context.ControlSets.Add(cs); // for each sub control, do a save on the whole thing
-                        Console.WriteLine("Adding number " + cs.subControlNumber);
-                        context.SaveChanges();
-                    }
-                }
-                else {
-                    cs.id = Guid.NewGuid();
-                    context.ControlSets.Add(cs); // for some reason no sub controls
-                    context.SaveChanges();
-                }
-            }
-            context.SaveChanges();
-        }
-
         static void Main(string[] args)
         {
             LogManager.Configuration = new XmlLoggingConfiguration($"{AppContext.BaseDirectory}nlog.config");
 
-            var logger = LogManager.GetLogger("openrmf_msg_checklist");
-            //logger.Info("log info");
-            //logger.Debug("log debug");
+            var logger = LogManager.GetLogger("openrmf_msg_controls");
+            ControlsDBContext _context;
 
             // Create a new connection factory to create a connection.
             ConnectionFactory cf = new ConnectionFactory();
 
             // Creates a live connection to the default NATS Server running locally
             IConnection c = cf.CreateConnection(Environment.GetEnvironmentVariable("natsserverurl"));
+            var options = new DbContextOptionsBuilder<ControlsDBContext>().UseInMemoryDatabase("ControlSet").Options;
+            _context = new ControlsDBContext(options);
+
+            // setup the internal database
+            ControlsLoader.LoadControlsXML(_context);
 
             // send back a full listing of controls based on the filter passed in
             EventHandler<MsgHandlerEventArgs> getControls = (sender, natsargs) =>
