@@ -1,5 +1,5 @@
 VERSION ?= 0.8
-NAME ?= "openrmf-msg-checklist"
+NAME ?= "openrmf-msg-controls"
 AUTHOR ?= "Dale Bingham"
 NO_CACHE ?= true
 DOCKERHUB_ACCOUNT ?= cingulara
