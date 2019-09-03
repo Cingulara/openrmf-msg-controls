@@ -90,53 +90,12 @@ namespace openrmf_msg_controls
                     logger.Error(ex, "Error retrieving checklist record for artifactId {0}", Encoding.UTF8.GetString(natsargs.Message.Data));
                 }
             };
-
-            // send back a listing of Vulnerability IDs based on the CCI passed in
-            EventHandler<MsgHandlerEventArgs> getControlsByCCI = (sender, natsargs) =>
-            {
-                try {
-                    // print the message
-                    logger.Info("NATS Msg Controls by CCI: {0}", natsargs.Message.Subject);
-                    logger.Info("NATS Msg system data: {0}",Encoding.UTF8.GetString(natsargs.Message.Data));
-                    string msg = "";
-
-                    // get rid of things we do not need
-                    string searchTerm = Encoding.UTF8.GetString(natsargs.Message.Data).Replace(" ", "");
-                    var result = _context.ControlSets.Where(x => x.subControlNumber == searchTerm || x.number == searchTerm).ToList();
-                    if (result != null && result.Count > 0)
-                        msg = JsonConvert.SerializeObject(result);
-                    else { // try to get the main family description and return that
-                        int index = GetFirstIndex(searchTerm);
-                        if (index < 0)
-                            msg = ""; // nothing loaded yet
-                        else { // see if there is a family title we can pass back
-                            searchTerm = searchTerm.Substring(0, index).Trim();
-                            result = _context.ControlSets.Where(x => x.subControlNumber == searchTerm || x.number == searchTerm).ToList();
-                            if (result != null && result.Count > 0)
-                                msg = JsonConvert.SerializeObject(result.FirstOrDefault());
-                            else
-                                msg = "";
-                        }
-                    }
-
-                    // publish back out on the reply line to the calling publisher
-                    logger.Info("Sending back compressed Checklist Data");
-                    c.Publish(natsargs.Message.Reply, Encoding.UTF8.GetBytes(Compression.CompressString(msg)));
-                    c.Flush(); // flush the line
-                }
-                catch (Exception ex) {
-                    // log it here
-                    logger.Error(ex, "Error retrieving checklist record for artifactId {0}", Encoding.UTF8.GetString(natsargs.Message.Data));
-                }
-            };
             
             // The simple way to create an asynchronous subscriber
             // is to simply pass the event in.  Messages will start
             // arriving immediately.
             logger.Info("setting up the openRMF control subscription by filter");
             IAsyncSubscription asyncNew = c.SubscribeAsync("openrmf.controls", getControls);
-            logger.Info("setting up the openRMF control subscription by CCI filter");
-            IAsyncSubscription asyncNewSystemChecklists = c.SubscribeAsync("openrmf.controls.cci", getControlsByCCI);
         }
     }
 }

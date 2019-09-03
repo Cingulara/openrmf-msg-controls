@@ -1,11 +1,9 @@
 # openrmf-msg-controls
-Messaging service to respond to internal API requests to receive a list of controls as well as a filtered list 
-of vulnerabilities from that control listing based on a CCI. This is all using a NATS Request/Repl scenario. This uses 
+Messaging service to respond to internal API requests to receive a list of controls. This is all using a NATS Request/Repl scenario. This uses 
 an XML file to load an internal memory database of sorts to query and receive data from. Update the database = update the 
 XML file and redeploy.
 
 * openrmf.controls
-* openrmf.controls.cci
 
 ## Running the NATS docker images
 * docker run --rm --name nats-main -p 4222:4222 -p 6222:6222 -p 8222:8222 nats
