@@ -87,15 +87,56 @@ namespace openrmf_msg_controls
                 }
                 catch (Exception ex) {
                     // log it here
-                    logger.Error(ex, "Error retrieving checklist record for artifactId {0}", Encoding.UTF8.GetString(natsargs.Message.Data));
+                    logger.Error(ex, "Error retrieving controls for the filter sent {0}", Encoding.UTF8.GetString(natsargs.Message.Data));
                 }
             };
             
+            // send back a full listing of controls based on the filter passed in
+            EventHandler<MsgHandlerEventArgs> getControlsByTerm = (sender, natsargs) =>
+            {
+                try {
+                    // print the message
+                    logger.Info("New NATS subject: {0}", natsargs.Message.Subject);
+                    logger.Info("New NATS data: {0}",Encoding.UTF8.GetString(natsargs.Message.Data));
+                    string term = Encoding.UTF8.GetString(natsargs.Message.Data);
+                    string searchTerm = term.Replace(" ", ""); // get rid of things we do not need
+                    string msg = "";
+                    var result = _context.ControlSets.Where(x => x.subControlNumber == searchTerm || x.number == searchTerm).ToList();
+                    if (result != null && result.Count > 0)
+                        msg = JsonConvert.SerializeObject(result.FirstOrDefault());
+                    else { // try to get the main family description and return that
+                        int index = GetFirstIndex(term);
+                        if (index < 0)
+                            msg = "";
+                        else { // see if there is a family title we can pass back
+                            searchTerm = term.Substring(0, index).Trim();
+                            result = _context.ControlSets.Where(x => x.subControlNumber == searchTerm || x.number == searchTerm).ToList();
+                            if (result != null && result.Count > 0)
+                                msg = JsonConvert.SerializeObject(result.FirstOrDefault());
+                            else
+                                msg = "";
+                        }
+                    }
+
+                    // publish back out on the reply line to the calling publisher
+                    logger.Info("Sending back compressed Checklist Data");
+                    c.Publish(natsargs.Message.Reply, Encoding.UTF8.GetBytes(Compression.CompressString(msg)));
+                    c.Flush(); // flush the line
+                }
+                catch (Exception ex) {
+                    // log it here
+                    logger.Error(ex, "Error retrieving control for search term {0}", Encoding.UTF8.GetString(natsargs.Message.Data));
+                }
+            };
+
             // The simple way to create an asynchronous subscriber
             // is to simply pass the event in.  Messages will start
             // arriving immediately.
             logger.Info("setting up the openRMF control subscription by filter");
-            IAsyncSubscription asyncNew = c.SubscribeAsync("openrmf.controls", getControls);
+            IAsyncSubscription asyncControls = c.SubscribeAsync("openrmf.controls", getControls);
+
+            logger.Info("setting up the openRMF control subscription by filter");
+            IAsyncSubscription asyncControlByTerm = c.SubscribeAsync("openrmf.controls.search", getControlsByTerm);
         }
     }
 }
