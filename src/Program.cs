@@ -42,7 +42,7 @@ namespace openrmf_msg_controls
             ConnectionFactory cf = new ConnectionFactory();
 
             // Creates a live connection to the default NATS Server running locally
-            IConnection c = cf.CreateConnection(Environment.GetEnvironmentVariable("natsserverurl"));
+            IConnection c = cf.CreateConnection(Environment.GetEnvironmentVariable("NATSSERVERURL"));
             var options = new DbContextOptionsBuilder<ControlsDBContext>().UseInMemoryDatabase("ControlSet").Options;
             _context = new ControlsDBContext(options);
 
