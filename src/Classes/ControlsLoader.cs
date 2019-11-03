@@ -13,6 +13,11 @@ namespace openrmf_msg_controls.Classes {
 
     public static class ControlsLoader {
 
+        /// <summary>
+        /// Load the included XML file of all NIST controls into a list to parse.
+        /// This feeds a function below to load the records into a database in memory.
+        /// </summary>
+        /// <returns>The list of controls from the XML file</returns>
         public static List<Control> LoadControls() {
             List<Control> controls = new List<Control>();
             Control c;
@@ -83,23 +88,20 @@ namespace openrmf_msg_controls.Classes {
                     controls.Add(c); // add to the main control
                 }
             }
-            // ChildControl cc = new ChildControl();
-            // cc.number = "AC-1a";
-            // cc.description = "Develops, documents, and disseminates to [Assignment: organization-defined personnel or roles]";
-            // c.childControls.Add(cc);
-            // cc.number = "AC-1a1";
-            // cc.description = "An access control policy that addresses purpose, scope, roles, responsibilities, management commitment, coordination among organizational entities, and compliance";
-            // c.childControls.Add(cc);
-            // save it 
-
             return controls; // send back and have them cycle through it
         }
 
+        /// <summary>
+        /// Load the internal database in memory from the XML file of all NIST controls.
+        /// </summary>
+        /// <param name="context">The database in memory</param>
+        /// <returns></returns>
         public static void LoadControlsXML(ControlsDBContext context) {
             List<Control> controls = LoadControls();
             // for each one, load into the in-memory DB
             ControlSet cs;
             string formatNumber;
+            // setup the database record to store
             foreach (Control c in controls) {
                 cs = new ControlSet(); // the flattened controls table listing for the in memory DB
                 cs.family = c.family;
