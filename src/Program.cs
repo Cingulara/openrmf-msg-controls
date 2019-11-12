@@ -16,6 +16,12 @@ namespace openrmf_msg_controls
     class Program
     {
 
+        /// <summary>
+        /// Finds the first index or integer of the NIST family of controls from the 
+        /// text you passed in
+        /// </summary>
+        /// <param name="term">The full index you are looking to parse.</param>
+        /// <returns>An integer showing the main family for the NIST control</returns>
         private static int GetFirstIndex(string term) {
             int space = term.IndexOf(" ");
             int period = term.IndexOf(".");
@@ -101,6 +107,7 @@ namespace openrmf_msg_controls
                     string term = Encoding.UTF8.GetString(natsargs.Message.Data);
                     string searchTerm = term.Replace(" ", ""); // get rid of things we do not need
                     string msg = "";
+                    // find the control from the data passed in
                     var result = _context.ControlSets.Where(x => x.subControlNumber == searchTerm || x.number == searchTerm).ToList();
                     if (result != null && result.Count > 0)
                         msg = JsonConvert.SerializeObject(result.FirstOrDefault());
@@ -132,10 +139,10 @@ namespace openrmf_msg_controls
             // The simple way to create an asynchronous subscriber
             // is to simply pass the event in.  Messages will start
             // arriving immediately.
-            logger.Info("setting up the openRMF control subscription by filter");
+            logger.Info("setting up the OpenRMF control subscription by filter");
             IAsyncSubscription asyncControls = c.SubscribeAsync("openrmf.controls", getControls);
 
-            logger.Info("setting up the openRMF control subscription by filter");
+            logger.Info("setting up the OpenRMF control subscription by filter");
             IAsyncSubscription asyncControlByTerm = c.SubscribeAsync("openrmf.controls.search", getControlsByTerm);
         }
     }
