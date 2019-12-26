@@ -1,12 +1,10 @@
+// Copyright (c) Cingulara 2019. All rights reserved.
+// Licensed under the GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007 license. See LICENSE file in the project root for full license information.
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using openrmf_msg_controls.Models;
 using openrmf_msg_controls.Database;
 using System.IO;
-using System.Text;
-using System.Xml.Serialization;
 using System.Xml;
 
 namespace openrmf_msg_controls.Classes {
