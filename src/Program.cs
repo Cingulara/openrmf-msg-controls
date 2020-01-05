@@ -53,7 +53,7 @@ namespace openrmf_msg_controls
             // add the options for the server, reconnecting, and the handler events
             Options opts = ConnectionFactory.GetDefaultOptions();
             opts.MaxReconnect = -1;
-            opts.ReconnectWait = 1000;
+            opts.ReconnectWait = 2000;
             opts.Name = "openrmf-msg-controls";
             opts.Url = Environment.GetEnvironmentVariable("NATSSERVERURL");
             opts.AsyncErrorEventHandler += (sender, events) =>
@@ -108,6 +108,8 @@ namespace openrmf_msg_controls
                             result = listing.Where(x => x.moderateimpact).ToList();
                         else if (filter.impactLevel.Trim().ToLower() == "high")
                             result = listing.Where(x => x.highimpact).ToList();
+                        else
+                            result = listing; // get all the data
 
                         // include things that are not P0 meaning not used, and that there is no low/moderate/high designation
                         // these should always be included where the combination of all "false" and not P0 = include them
