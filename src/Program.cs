@@ -102,11 +102,11 @@ namespace openrmf_msg_controls
                     Filter filter = JsonConvert.DeserializeObject<Filter>(Encoding.UTF8.GetString(natsargs.Message.Data));
                     if (listing != null) {
                         // figure out the impact level filter
-                        if (filter.impactLevel.Trim().ToLower() == "low")
+                        if (filter != null && !string.IsNullOrEmpty(filter.impactLevel) && filter.impactLevel.Trim().ToLower() == "low")
                             result = listing.Where(x => x.lowimpact).ToList();
-                        else if (filter.impactLevel.Trim().ToLower() == "moderate")
+                        else if (filter != null && !string.IsNullOrEmpty(filter.impactLevel) && filter.impactLevel.Trim().ToLower() == "moderate")
                             result = listing.Where(x => x.moderateimpact).ToList();
-                        else if (filter.impactLevel.Trim().ToLower() == "high")
+                        else if (filter != null && !string.IsNullOrEmpty(filter.impactLevel) && filter.impactLevel.Trim().ToLower() == "high")
                             result = listing.Where(x => x.highimpact).ToList();
                         else
                             result = listing; // get all the data
