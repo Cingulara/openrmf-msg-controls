@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright (c) Cingulara LLC 2019 and Tutela LLC 2019. All rights reserved.
+// Licensed under the GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007 license. See LICENSE file in the project root for full license information.
+using System;
 using System.Collections.Generic;
 using NATS.Client;
 using System.Text;
@@ -47,8 +49,41 @@ namespace openrmf_msg_controls
             // Create a new connection factory to create a connection.
             ConnectionFactory cf = new ConnectionFactory();
 
-            // Creates a live connection to the default NATS Server running locally
-            IConnection c = cf.CreateConnection(Environment.GetEnvironmentVariable("NATSSERVERURL"));
+
+            // add the options for the server, reconnecting, and the handler events
+            Options opts = ConnectionFactory.GetDefaultOptions();
+            opts.MaxReconnect = -1;
+            opts.ReconnectWait = 2000;
+            opts.Name = "openrmf-msg-controls";
+            opts.Url = Environment.GetEnvironmentVariable("NATSSERVERURL");
+            opts.AsyncErrorEventHandler += (sender, events) =>
+            {
+                logger.Info("NATS client error. Server: {0}. Message: {1}. Subject: {2}", events.Conn.ConnectedUrl, events.Error, events.Subscription.Subject);
+            };
+
+            opts.ServerDiscoveredEventHandler += (sender, events) =>
+            {
+                logger.Info("A new server has joined the cluster: {0}", events.Conn.DiscoveredServers);
+            };
+
+            opts.ClosedEventHandler += (sender, events) =>
+            {
+                logger.Info("Connection Closed: {0}", events.Conn.ConnectedUrl);
+            };
+
+            opts.ReconnectedEventHandler += (sender, events) =>
+            {
+                logger.Info("Connection Reconnected: {0}", events.Conn.ConnectedUrl);
+            };
+
+            opts.DisconnectedEventHandler += (sender, events) =>
+            {
+                logger.Info("Connection Disconnected: {0}", events.Conn.ConnectedUrl);
+            };
+            
+            // Creates a live connection to the NATS Server with the above options
+            IConnection c = cf.CreateConnection(opts);
+            
             var options = new DbContextOptionsBuilder<ControlsDBContext>().UseInMemoryDatabase("ControlSet").Options;
             _context = new ControlsDBContext(options);
 
@@ -67,12 +102,14 @@ namespace openrmf_msg_controls
                     Filter filter = JsonConvert.DeserializeObject<Filter>(Encoding.UTF8.GetString(natsargs.Message.Data));
                     if (listing != null) {
                         // figure out the impact level filter
-                        if (filter.impactLevel.Trim().ToLower() == "low")
+                        if (filter != null && !string.IsNullOrEmpty(filter.impactLevel) && filter.impactLevel.Trim().ToLower() == "low")
                             result = listing.Where(x => x.lowimpact).ToList();
-                        else if (filter.impactLevel.Trim().ToLower() == "moderate")
+                        else if (filter != null && !string.IsNullOrEmpty(filter.impactLevel) && filter.impactLevel.Trim().ToLower() == "moderate")
                             result = listing.Where(x => x.moderateimpact).ToList();
-                        else if (filter.impactLevel.Trim().ToLower() == "high")
+                        else if (filter != null && !string.IsNullOrEmpty(filter.impactLevel) && filter.impactLevel.Trim().ToLower() == "high")
                             result = listing.Where(x => x.highimpact).ToList();
+                        else
+                            result = listing; // get all the data
 
                         // include things that are not P0 meaning not used, and that there is no low/moderate/high designation
                         // these should always be included where the combination of all "false" and not P0 = include them
