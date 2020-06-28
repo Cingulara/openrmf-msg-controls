@@ -1,4 +1,4 @@
-VERSION ?= 1.0
+VERSION ?= 1.01.01
 NAME ?= "openrmf-msg-controls"
 AUTHOR ?= "Dale Bingham"
 NO_CACHE ?= true
