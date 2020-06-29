@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <RootNamespace>openrmf_msg_controls</RootNamespace>
     <ProjectGuid>{083a705d-1c68-4580-8905-a52ea2a61775}</ProjectGuid>
-    <Version>1.0</Version>
+    <Version>1.01.01</Version>
     <InformationalVersion>This is a beta of the OpenRMF Tool Messaging API for sending NIST control data via messaging from Cingulara</InformationalVersion>
   </PropertyGroup>
 
