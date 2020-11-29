@@ -113,7 +113,7 @@ namespace openrmf_msg_controls
 
                         // include things that are not P0 meaning not used, and that there is no low/moderate/high designation
                         // these should always be included where the combination of all "false" and not P0 = include them
-                        result.AddRange(listing.Where(x => x.priority != "P0" && 
+                        result.AddRange(listing.Where(x => x.priority != "P0" && x.family.ToLower() != "pii" && 
                             !x.lowimpact && !x.moderateimpact && !x.highimpact ).ToList());
 
                         // see if the PII  filter is true, and if so add in the PII family by appending that to the result from above
