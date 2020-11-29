@@ -58,6 +58,11 @@ namespace openrmf_msg_controls.Classes {
                                     else if (statementData.Name == "description")
                                         cc.description = statementData.InnerText;
                                 }
+                                // for this section, whatever the parent has you have
+                                cc.lowimpact = c.lowimpact;
+                                cc.moderateimpact = c.moderateimpact;
+                                cc.highimpact = c.highimpact;
+                                // add to the listing of child controls
                                 c.childControls.Add(cc);
                             }
                         }
@@ -70,8 +75,22 @@ namespace openrmf_msg_controls.Classes {
                                 foreach (XmlElement statementData in statementChild.ChildNodes) {
                                     if (statementData.Name == "number")
                                         cc.number = statementData.InnerText;
-                                    else if (statementData.Name == "title")
+                                    else if (statementData.Name == "description")
                                         cc.description = statementData.InnerText;
+                                    else if (statementData.Name == "statement") {
+                                        if (statementData.ChildNodes.Count > 0) {
+                                            cc.description = statementData.ChildNodes[0].FirstChild.InnerText;
+                                        }
+                                    }
+                                    else if (statementData.Name == "baseline-impact") {
+                                        // the control enhancements have their own low/moderate/high setting
+                                        if (statementData.InnerText == "LOW")
+                                            cc.lowimpact = true;
+                                        else if (statementData.InnerText == "MODERATE")
+                                            cc.moderateimpact = true;
+                                        else if (statementData.InnerText == "HIGH")
+                                            cc.highimpact = true;
+                                    }
                                 }
                                 c.childControls.Add(cc);
                             }
@@ -103,9 +122,6 @@ namespace openrmf_msg_controls.Classes {
             foreach (Control c in controls) {
                 cs = new ControlSet(); // the flattened controls table listing for the in memory DB
                 cs.family = c.family;
-                cs.highimpact = c.highimpact;
-                cs.moderateimpact = c.moderateimpact;
-                cs.lowimpact = c.lowimpact;
                 cs.number = c.number;
                 cs.priority = c.priority;
                 cs.title = c.title;
@@ -121,6 +137,9 @@ namespace openrmf_msg_controls.Classes {
                         if (formatNumber.EndsWith(".")) 
                             formatNumber = formatNumber.Substring(0,formatNumber.Length-1); // take off the trailing period
                         cs.subControlNumber = formatNumber; 
+                        cs.highimpact = cc.highimpact;
+                        cs.moderateimpact = cc.moderateimpact;
+                        cs.lowimpact = cc.lowimpact;
                         context.ControlSets.Add(cs); // for each sub control, do a save on the whole thing
                         Console.WriteLine("Adding number " + cs.subControlNumber);
                         context.SaveChanges();
@@ -128,6 +147,9 @@ namespace openrmf_msg_controls.Classes {
                 }
                 else {
                     cs.id = Guid.NewGuid();
+                    cs.highimpact = c.highimpact;
+                    cs.moderateimpact = c.moderateimpact;
+                    cs.lowimpact = c.lowimpact;
                     context.ControlSets.Add(cs); // for some reason no sub controls
                     context.SaveChanges();
                 }

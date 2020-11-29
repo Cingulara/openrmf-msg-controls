@@ -33,6 +33,9 @@ namespace openrmf_msg_controls.Models
     public string number { get; set;}
     [Key]
     public Guid id { get; set;}
+    public bool lowimpact { get; set;}
+    public bool moderateimpact { get; set;}
+    public bool highimpact { get; set;}
   }
 
 }
