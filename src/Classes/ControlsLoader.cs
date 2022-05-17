@@ -141,7 +141,7 @@ namespace openrmf_msg_controls.Classes {
                         cs.moderateimpact = cc.moderateimpact;
                         cs.lowimpact = cc.lowimpact;
                         context.ControlSets.Add(cs); // for each sub control, do a save on the whole thing
-                        Console.WriteLine("Adding number " + cs.subControlNumber);
+                        //Console.WriteLine("Adding number " + cs.subControlNumber);
                         context.SaveChanges();
                     }
                 }
