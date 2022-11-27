@@ -5,7 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>openrmf_msg_controls</RootNamespace>
     <ProjectGuid>{083a705d-1c68-4580-8905-a52ea2a61775}</ProjectGuid>
-    <Version>1.07.00</Version>
+    <Version>1.08.02</Version>
     <InformationalVersion>This is the OpenRMF OSS Application Messaging API for sending NIST control data via messaging from Cingulara</InformationalVersion>
   </PropertyGroup>
 
@@ -23,6 +23,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Private.Uri" Version="4.3.2" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>
