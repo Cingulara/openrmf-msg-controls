@@ -1,69 +1,86 @@
-using Xunit;
-using openrmf_msg_controls.Models;
 using System;
+using openrmf_msg_controls.Models;
+using Xunit;
 
-namespace tests.Models
+namespace tests.Models;
+
+public class ControlTests
 {
-    public class ControlTests
+    [Fact]
+    public void Constructor_InitializesChildControlsAndId()
     {
-        [Fact]
-        public void Test_NewControlIsValid()
+        var control = new Control();
+
+        Assert.NotNull(control);
+        Assert.NotNull(control.childControls);
+        Assert.Empty(control.childControls);
+        Assert.NotEqual(Guid.Empty, control.id);
+    }
+
+    [Fact]
+    public void Properties_StoreAssignedValues()
+    {
+        var id = Guid.NewGuid();
+        var child = new ChildControl
         {
-            Control ctrl = new Control();
-            Assert.True(ctrl != null);
-            Assert.True(ctrl.childControls != null);
-            Assert.True(ctrl.childControls.Count == 0);
-        }
-    
-        [Fact]
-        public void Test_ControlWithDataIsValid()
+            number = "AC-1 (1)",
+            description = "Sub control"
+        };
+
+        var control = new Control
         {
-            
-            Control ctrl = new Control();
-            ctrl.family = "AC";
-            ctrl.number = "AC-1";
-            ctrl.title = "ACCESS CONTROL";
-            ctrl.priority = "P1";
-            ctrl.lowimpact = true;
-            ctrl.id = Guid.NewGuid();
-            ChildControl cc = new ChildControl();
-            cc.number = "AC-1.2.3.4.5(6)";
-            cc.description = "My description is here";
-            ctrl.childControls.Add(cc);
+            family = "AC",
+            number = "AC-1",
+            title = "ACCESS CONTROL",
+            priority = "P1",
+            lowimpact = true,
+            moderateimpact = false,
+            highimpact = false,
+            supplementalGuidance = "Guidance",
+            id = id
+        };
 
-            // test things out
-            Assert.True(ctrl != null);
-            Assert.True(!string.IsNullOrEmpty(ctrl.family));
-            Assert.True(!string.IsNullOrEmpty(ctrl.number));
-            Assert.True(!string.IsNullOrEmpty(ctrl.title));
-            Assert.True(!string.IsNullOrEmpty(ctrl.priority));
-            Assert.True(ctrl.lowimpact);
-            Assert.False(ctrl.moderateimpact);
-            Assert.False(ctrl.highimpact);
-            Assert.True(ctrl.childControls.Count == 1);
-            Assert.True(ctrl.childControls[0].id != Guid.Empty);
-        }
+        control.childControls.Add(child);
 
-        [Fact]
-        public void Test_NewChildControlIsValid()
+        Assert.Equal("AC", control.family);
+        Assert.Equal("AC-1", control.number);
+        Assert.Equal("ACCESS CONTROL", control.title);
+        Assert.Equal("P1", control.priority);
+        Assert.True(control.lowimpact);
+        Assert.False(control.moderateimpact);
+        Assert.False(control.highimpact);
+        Assert.Equal("Guidance", control.supplementalGuidance);
+        Assert.Equal(id, control.id);
+        Assert.Single(control.childControls);
+        Assert.NotEqual(Guid.Empty, control.childControls[0].id);
+    }
+
+    [Fact]
+    public void ChildControl_ConstructorInitializesId()
+    {
+        var childControl = new ChildControl();
+
+        Assert.NotNull(childControl);
+        Assert.NotEqual(Guid.Empty, childControl.id);
+    }
+
+    [Fact]
+    public void ChildControl_PropertiesStoreAssignedValues()
+    {
+        var childControl = new ChildControl
         {
-            ChildControl ctrl = new ChildControl();
-            Assert.True(ctrl != null);
-        }
+            description = "Audit events",
+            number = "AU-2",
+            lowimpact = true,
+            moderateimpact = false,
+            highimpact = true
+        };
 
-        [Fact]
-        public void Test_ChildControlWithDataIsValid()
-        {
-            ChildControl ctrl = new ChildControl();
-            ctrl.description = "AU-9";
-            ctrl.number = "AU-9";
-
-            // test things out
-            Assert.True(ctrl != null);
-            Assert.True (!string.IsNullOrEmpty(ctrl.description));
-            Assert.True (!string.IsNullOrEmpty(ctrl.number));
-            Assert.True (ctrl.id != Guid.Empty);
-        }
-
+        Assert.Equal("Audit events", childControl.description);
+        Assert.Equal("AU-2", childControl.number);
+        Assert.True(childControl.lowimpact);
+        Assert.False(childControl.moderateimpact);
+        Assert.True(childControl.highimpact);
+        Assert.NotEqual(Guid.Empty, childControl.id);
     }
 }

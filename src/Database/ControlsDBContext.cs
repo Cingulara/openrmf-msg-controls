@@ -12,6 +12,6 @@ namespace openrmf_msg_controls.Database
     
         }  
 
-        public DbSet<ControlSet> ControlSets { get; set; }
+        public virtual DbSet<ControlSet> ControlSets { get; set; }
     }  
 }

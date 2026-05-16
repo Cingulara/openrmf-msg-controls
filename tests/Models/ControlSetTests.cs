@@ -1,40 +1,49 @@
-using Xunit;
-using openrmf_msg_controls.Models;
 using System;
+using openrmf_msg_controls.Models;
+using Xunit;
 
-namespace tests.Models
+namespace tests.Models;
+
+public class ControlSetTests
 {
-    public class ControlSetTests
+    [Fact]
+    public void Constructor_InitializesId()
     {
-        [Fact]
-        public void Test_NewControlIsValid()
-        {
-            ControlSet ctrl = new ControlSet();
-            Assert.True(ctrl != null);
-            Assert.True(ctrl.id != Guid.Empty);
-        }
-    
-        [Fact]
-        public void Test_ControlWithDataIsValid()
-        {
-            ControlSet ctrl = new ControlSet();
-            ctrl.family = "AC";
-            ctrl.number = "AC-1";
-            ctrl.title = "ACCESS CONTROL";
-            ctrl.priority = "P1";
-            ctrl.lowimpact = true;
-            ctrl.id = Guid.NewGuid();
-            ctrl.subControlNumber = "AC-1 (b)";
+        var controlSet = new ControlSet();
 
-            // test things out
-            Assert.True(ctrl != null);
-            Assert.True(!string.IsNullOrEmpty(ctrl.family));
-            Assert.True(!string.IsNullOrEmpty(ctrl.number));
-            Assert.True(!string.IsNullOrEmpty(ctrl.title));
-            Assert.True(!string.IsNullOrEmpty(ctrl.priority));
-            Assert.True(ctrl.lowimpact);
-            Assert.False(ctrl.moderateimpact);
-            Assert.False(ctrl.highimpact);
-        }
+        Assert.NotNull(controlSet);
+        Assert.NotEqual(Guid.Empty, controlSet.id);
+    }
+
+    [Fact]
+    public void Properties_StoreAssignedValues()
+    {
+        var id = Guid.NewGuid();
+        var controlSet = new ControlSet
+        {
+            id = id,
+            family = "AC",
+            number = "AC-1",
+            title = "ACCESS CONTROL",
+            priority = "P1",
+            lowimpact = true,
+            moderateimpact = false,
+            highimpact = false,
+            supplementalGuidance = "Guidance",
+            subControlDescription = "Sub description",
+            subControlNumber = "AC-1(b)"
+        };
+
+        Assert.Equal(id, controlSet.id);
+        Assert.Equal("AC", controlSet.family);
+        Assert.Equal("AC-1", controlSet.number);
+        Assert.Equal("ACCESS CONTROL", controlSet.title);
+        Assert.Equal("P1", controlSet.priority);
+        Assert.True(controlSet.lowimpact);
+        Assert.False(controlSet.moderateimpact);
+        Assert.False(controlSet.highimpact);
+        Assert.Equal("Guidance", controlSet.supplementalGuidance);
+        Assert.Equal("Sub description", controlSet.subControlDescription);
+        Assert.Equal("AC-1(b)", controlSet.subControlNumber);
     }
 }
